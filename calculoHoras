@@ -1,0 +1,21 @@
+Horas Úteis Mensal = 
+-- Business Hours = 8:00-12:00...13:12-18:00 
+/*Calcula 8.8h por dia útil até a data atual + [Tempo de trabalho do dia atual] - [Horário de Almoço do dia atual]*/
+VAR HorasUteisPorDia = IF(SELECTEDVALUE(dColaboradores[WORKPLACE_NAME]) = "SEDE PRESIDENTE PRUDENTE",8,8.8)
+VAR DiasUteis = SUM(dCalendario[Dia Útil])
+VAR UltimoDiaSelecionado = MAX(dCalendario[Date])
+VAR HorasUteisAteHoje =  (  DiasUteis * HorasUteisPorDia ) - HorasUteisPorDia -- Tira as horas úteis de hoje
+VAR HorasUteisPassado = (DiasUteis * HorasUteisPorDia)
+VAR HoraAtualAte18 =
+    IF (
+        HOUR ( NOW () - (3/24) )  + ( MINUTE ( NOW () - 3 ) / 60 ) > 18,
+        18,
+        HOUR ( NOW () - (3/24) )  + ( MINUTE ( NOW () - 3 ) / 60 )
+    )
+VAR TempoAlmoco =
+    IF (  HoraAtualAte18 <= 12,
+        0,
+        IF ( HoraAtualAte18 < 13.2, HoraAtualAte18, 13.2 ) - 12
+    )
+RETURN
+    IF(UltimoDiaSelecionado = TODAY(),CALCULATE(( HoraAtualAte18 - 8 - TempoAlmoco ) + HorasUteisAteHoje),CALCULATE(HorasUteisPassado))
